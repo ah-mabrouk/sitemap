@@ -1,0 +1,47 @@
+{
+  "name": "solutionplus/sitemap",
+  "type": "library",
+  "description": "A laravel package to create and generate sitemaps",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Omar Ashraf",
+      "email": "o.ashraf@otas.net"
+    },
+    {
+      "name": "Mohamed Elmaadawi",
+      "email": "m.elmaadawi@otas.net"
+    },
+    {
+      "name": "Mohamed Wael",
+      "email": "m.wael@otas.net"
+    }
+  ],
+  "require": {
+    "laravel/framework": ">=11.0"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^7.0@dev"
+  },
+  "autoload": {
+    "psr-4": {
+      "SolutionPlus\\Sitemap\\": "src/",
+      "Database\\Factories\\": "src/database/factories/",
+      "Database\\Seeders\\": "src/database/seeders/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "SolutionPlus\\Sitemap\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "SolutionPlus\\Sitemap\\SitemapServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}

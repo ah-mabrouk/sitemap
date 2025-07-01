@@ -2,20 +2,18 @@
 
 namespace SolutionPlus\Sitemap\Http\Controllers\Website;
 
-use SolutionPlus\Sitemap\Helpers\GenerateSitemapHelper;
-use SolutionPlus\Sitemap\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
+use SolutionPlus\Sitemap\Http\Controllers\Controller;
+use SolutionPlus\Sitemap\Helpers\SitemapHelperFunctions;
 
 class SitemapController extends Controller
 {
     public function __invoke()
     {
-        $filePath = GenerateSitemapHelper::getSitemapFilePath();
+        $filePath = SitemapHelperFunctions::getSitemapFilePath();
 
         $xml = Storage::disk('public')->get($filePath);
 
-        return response([
-            'sitemap' => $xml,
-        ]);
+        return response($xml);
     }
 }

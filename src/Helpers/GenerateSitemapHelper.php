@@ -15,8 +15,8 @@ class GenerateSitemapHelper
         $dynamicUrls = [];
 
         foreach (config('sitemap.dynamic_links') as $modelClass):
-            if (\method_exists($modelClass, 'dynamicSitemap')) {
-                $modelUrls = $modelClass::dynamicSitemap();
+            if (\method_exists($modelClass, 'buildSitemapUrls')) {
+                $modelUrls = $modelClass::buildSitemapUrls();
 
                 $dynamicUrls = array_merge($dynamicUrls, $modelUrls);
             }
@@ -26,7 +26,7 @@ class GenerateSitemapHelper
 
         $xml = self::buildXml($urls);
 
-        $filePath = self::getSitemapFilePath();
+        $filePath = SitemapHelperFunctions::getSitemapFilePath();
 
         return Storage::disk('public')->put($filePath, $xml);
     }
@@ -109,12 +109,5 @@ class GenerateSitemapHelper
         }
 
         return $websiteUrl;
-    }
-
-    public static function getSitemapFilePath(): string
-    {
-        $fileName =  config('sitemap.subdomain') ? config('sitemap.subdomain') . '-sitemap.xml' : 'sitemap.xml';
-
-        return 'sitemaps\\' . $fileName;
     }
 }

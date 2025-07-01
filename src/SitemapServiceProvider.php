@@ -2,7 +2,6 @@
 
 namespace SolutionPlus\Sitemap;
 
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use SolutionPlus\Sitemap\Console\Commands\GenerateSitemapCommand;

@@ -76,16 +76,16 @@ return [
     | is provided in the commented section below.
     */
     'static_links' => [
-//        [
-//            'loc' => 'ar',
-//            'other_locs' => ['en'],
-//            'alternates' => [
-//                ['hreflang' => 'ar', 'href' => 'ar'],
-//                ['hreflang' => 'en', 'href' => 'en'],
-//                ['hreflang' => 'x-default', 'href' => ''],
-//            ],
-//            'priority' => '1.0',
-//        ],
+        // [
+        //     'loc' => 'ar',
+        //     'other_locs' => ['en'],
+        //     'alternates' => [
+        //         ['hreflang' => 'ar', 'href' => 'ar'],
+        //         ['hreflang' => 'en', 'href' => 'en'],
+        //         ['hreflang' => 'x-default', 'href' => ''],
+        //     ],
+        //     'priority' => '1.0',
+        // ],
     ],
 
     /*
@@ -98,7 +98,7 @@ return [
     | provide required methods for link generation.
     */
     'dynamic_links' => [
-//        App\Models\Example::class,
+        // App\Models\Example::class,
     ],
 
     /*

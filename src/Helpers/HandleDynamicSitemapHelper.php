@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Collection;
 
 class HandleDynamicSitemapHelper
 {
-    public static function handleTranslations(Collection $modelItems, array $translatedSegments, $routeKeyName = 'slug', $priority = 0.8): array
+    public static function buildLocalizedUrls(Collection $modelItems, array $translatedSegments, $routeKeyName = 'slug', $priority = 0.8): array
     {
         $urls = [];
-
+        
         $defaultLocale = config('sitemap.default_locale');
 
         $locales = config('translatable.locales');
@@ -62,7 +62,7 @@ class HandleDynamicSitemapHelper
         return $urls;
     }
 
-    public static function handleNonTranslations(Collection $modelItems, array $translatedSegments, $routeKeyName = 'slug', $priority = 0.8): array
+    public static function buildDefaultUrls(Collection $modelItems, array $translatedSegments, $routeKeyName = 'slug', $priority = 0.8): array
     {
         $urls = [];
         $defaultLocale = config('sitemap.default_locale');

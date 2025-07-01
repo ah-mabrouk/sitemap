@@ -4,5 +4,7 @@ namespace SolutionPlus\Sitemap\Contracts;
 
 interface SitemapContract
 {
-    public static function dynamicSitemap(): array;
+    public static function sitemapTranslatedSegments(): array;
+    
+    public static function buildSitemapUrls(): array;
 }

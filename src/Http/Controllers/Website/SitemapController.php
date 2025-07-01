@@ -14,8 +14,6 @@ class SitemapController extends Controller
 
         $xml = Storage::disk('public')->get($filePath);
 
-        return response([
-            'sitemap' => $xml,
-        ]);
+        return response($xml);
     }
 }

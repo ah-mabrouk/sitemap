@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Collection;
 
 class HandleDynamicSitemapHelper
 {
-    public static function handleTranslations(Collection $modelItems, array $translatedSegments, $routeKeyName = 'slug')
+    public static function handleTranslations(Collection $modelItems, array $translatedSegments, $routeKeyName = 'slug', $priority = 0.8): array
     {
         $urls = [];
 
@@ -54,7 +54,49 @@ class HandleDynamicSitemapHelper
                     'loc' => $locale . '/' . $segment . '/' . $slug,
                     'other_locs' => [],
                     'alternates' => $alternates,
-                    'priority' => '0.9',
+                    'priority' => $priority,
+                ];
+            }
+        }
+
+        return $urls;
+    }
+
+    public static function handleNonTranslations(Collection $modelItems, array $translatedSegments, $routeKeyName = 'slug', $priority = 0.8): array
+    {
+        $urls = [];
+        $defaultLocale = config('sitemap.default_locale');
+        $locales = config('translatable.locales');
+
+        foreach ($modelItems as $modelItem) {
+            $routeValue = $modelItem->{$routeKeyName}; // this is constant across locales
+
+            foreach ($locales as $locale) {
+                $segment = $translatedSegments[$locale] ?? $translatedSegments[$defaultLocale];
+
+                $alternates = [];
+
+                foreach ($locales as $altLocale) {
+                    $altSegment = $translatedSegments[$altLocale] ?? $translatedSegments[$defaultLocale];
+
+                    $alternates[] = [
+                        'hreflang' => $altLocale,
+                        'href' => $altLocale . '/' . $altSegment . '/' . $routeValue,
+                    ];
+                }
+
+                // Add x-default
+                $xDefaultSegment = $translatedSegments[$defaultLocale];
+                $alternates[] = [
+                    'hreflang' => 'x-default',
+                    'href' => $xDefaultSegment . '/' . $routeValue,
+                ];
+
+                $urls[] = [
+                    'loc' => $locale . '/' . $segment . '/' . $routeValue,
+                    'other_locs' => [],
+                    'alternates' => $alternates,
+                    'priority' => $priority,
                 ];
             }
         }

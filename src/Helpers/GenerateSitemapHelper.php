@@ -1,0 +1,120 @@
+<?php
+
+namespace SolutionPlus\Sitemap\Helpers;
+
+use DOMElement;
+use DOMDocument;
+use Illuminate\Support\Facades\Storage;
+
+class GenerateSitemapHelper
+{
+    public static function generate()
+    {
+        $staticLinks = config('sitemap.static_links');
+
+        $dynamicUrls = [];
+
+        foreach (config('sitemap.dynamic_links') as $modelClass):
+            if (\method_exists($modelClass, 'dynamicSitemap')) {
+                $modelUrls = $modelClass::dynamicSitemap();
+
+                $dynamicUrls = array_merge($dynamicUrls, $modelUrls);
+            }
+        endforeach;
+
+        $urls = [...$staticLinks, ...$dynamicUrls];
+
+        $xml = self::buildXml($urls);
+
+        $filePath = self::getSitemapFilePath();
+
+        return Storage::disk('public')->put($filePath, $xml);
+    }
+
+    private static function buildXml(array $urls): string
+    {
+        $websiteUrl = self::prepareWebsiteUrl();
+
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        $dom->formatOutput = true;
+
+        $NS = 'http://www.sitemaps.org/schemas/sitemap/0.9';
+        $XHTML_NS = 'http://www.w3.org/1999/xhtml';
+
+        $urlset = $dom->createElementNS($NS, 'urlset');
+        $urlset->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xhtml', $XHTML_NS);
+        $dom->appendChild($urlset);
+
+        foreach ($urls as $urlData) {
+
+            $url = self::createUrl(
+                dom: $dom,
+                websiteUrl: $websiteUrl,
+                loc: $urlData['loc'],
+                alternates: $urlData['alternates'],
+                priority: $urlData['priority']
+            );
+
+            $urlset->appendChild($url);
+
+            foreach ($urlData['other_locs'] as $otherLoc):
+                $url = self::createUrl(
+                    dom: $dom,
+                    websiteUrl: $websiteUrl,
+                    loc: $otherLoc,
+                    alternates: $urlData['alternates'],
+                    priority: $urlData['priority']
+                );
+
+                $urlset->appendChild($url);
+            endforeach;
+        }
+
+        return $dom->saveXML();
+    }
+
+    private static function createUrl(DOMDocument $dom, string $websiteUrl, string $loc, array $alternates, string $priority): DOMElement
+    {
+        $url = $dom->createElement('url');
+
+        $locUrl = $loc ? $websiteUrl . '/' . $loc : $websiteUrl;
+        $loc = $dom->createElement('loc', $locUrl);
+        $url->appendChild($loc);
+
+        foreach ($alternates as $alt) {
+            $href = $alt['href'] ? $websiteUrl . '/' . $alt['href'] : $websiteUrl;
+
+            $link = $dom->createElement('xhtml:link');
+            $link->setAttribute('rel', 'alternate');
+            $link->setAttribute('hreflang', $alt['hreflang']);
+            $link->setAttribute('href', $href);
+            $url->appendChild($link);
+        }
+
+        $url->appendChild($dom->createElement('lastmod', now()->toAtomString()));
+        $url->appendChild($dom->createElement('changefreq', 'daily'));
+        $url->appendChild($dom->createElement('priority', $priority));
+
+        return $url;
+    }
+
+    private static function prepareWebsiteUrl(): string
+    {
+        $websiteUrl = config('sitemap.website_url') ?? \str_replace('api.', '', config('app.url'));
+
+        if (config('sitemap.subdomain')) {
+            $baseUrl = parse_url($websiteUrl);
+
+            $websiteUrl = $baseUrl['scheme'] . '://' . config('sitemap.subdomain') . '.' . $baseUrl['host'];
+        }
+
+        return $websiteUrl;
+    }
+
+    public static function getSitemapFilePath(): string
+    {
+        $fileName =  config('sitemap.subdomain') ? config('sitemap.subdomain') . '-sitemap.xml' : 'sitemap.xml';
+
+        return 'sitemaps\\' . $fileName;
+    }
+}

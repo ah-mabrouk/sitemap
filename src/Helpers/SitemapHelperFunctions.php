@@ -8,6 +8,6 @@ class SitemapHelperFunctions
     {
         $fileName =  config('sitemap.subdomain') ? config('sitemap.subdomain') . '-sitemap.xml' : 'sitemap.xml';
 
-        return 'sitemaps\\' . $fileName;
+        return 'sitemaps/' . $fileName;
     }
 }

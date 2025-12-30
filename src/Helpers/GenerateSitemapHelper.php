@@ -2,9 +2,10 @@
 
 namespace SolutionPlus\Sitemap\Helpers;
 
-use DOMElement;
 use DOMDocument;
+use DOMElement;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class GenerateSitemapHelper
 {
@@ -108,6 +109,10 @@ class GenerateSitemapHelper
             $websiteUrl = $baseUrl['scheme'] . '://' . config('sitemap.subdomain') . '.' . $baseUrl['host'];
         }
 
+        if (!Str::contains($websiteUrl, '://www.')) {
+            $websiteUrl = str_replace('://', '://www.', $websiteUrl);
+        }
+        
         return $websiteUrl;
     }
 }

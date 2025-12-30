@@ -9,7 +9,7 @@ class HandleDynamicSitemapHelper
     public static function buildLocalizedUrls(Collection $modelItems, array $translatedSegments, $routeKeyName = 'slug', $priority = 0.8): array
     {
         $urls = [];
-        
+
         $defaultLocale = config('sitemap.default_locale');
 
         $locales = config('translatable.locales');
@@ -19,8 +19,7 @@ class HandleDynamicSitemapHelper
 
             // Ensure default locale exists in the map
             if (!isset($translations[$defaultLocale])) {
-                $defaultSlug = $modelItem->$routeKeyName; // fallback if only one translation exists
-                $translations[$defaultLocale] = $defaultSlug;
+                $translations[$defaultLocale] = $modelItem->$routeKeyName;
             }
 
             // Build one entry for each available locale translation
@@ -32,26 +31,22 @@ class HandleDynamicSitemapHelper
                     $altSlug = $translations[$altLocale] ?? $translations[$defaultLocale];
                     $segment = $translatedSegments[$altLocale];
 
-                    $href = $altLocale . '/' . $segment . '/' . $altSlug;
-
                     $alternates[] = [
                         'hreflang' => $altLocale,
-                        'href' => $href,
+                        'href' => self::formatSitemapUrl(locale: $altLocale, segment: $segment, slug: $altSlug),
                     ];
                 }
 
                 // Add x-default
-                $xDefaultSegment = $translatedSegments[$defaultLocale];
-                $xDefaultSlug = $translations[$defaultLocale];
                 $alternates[] = [
                     'hreflang' => 'x-default',
-                    'href' => $xDefaultSegment . '/' . $xDefaultSlug,
+                    'href' => self::formatSitemapUrl(locale: $defaultLocale, segment: $translatedSegments[$defaultLocale], slug: $translations[$defaultLocale]),
                 ];
 
                 $segment = $translatedSegments[$locale];
 
                 $urls[] = [
-                    'loc' => $locale . '/' . $segment . '/' . $slug,
+                    'loc' => self::formatSitemapUrl(locale: $locale, segment: $translatedSegments[$locale], slug: $slug),
                     'other_locs' => [],
                     'alternates' => $alternates,
                     'priority' => $priority,
@@ -81,19 +76,18 @@ class HandleDynamicSitemapHelper
 
                     $alternates[] = [
                         'hreflang' => $altLocale,
-                        'href' => $altLocale . '/' . $altSegment . '/' . $routeValue,
+                        'href' => self::formatSitemapUrl(locale: $altLocale, segment: $altSegment, slug: $routeValue),
                     ];
                 }
 
                 // Add x-default
-                $xDefaultSegment = $translatedSegments[$defaultLocale];
                 $alternates[] = [
                     'hreflang' => 'x-default',
-                    'href' => $xDefaultSegment . '/' . $routeValue,
+                    'href' => self::formatSitemapUrl(locale: $defaultLocale, segment: $translatedSegments[$defaultLocale], slug: $routeValue),
                 ];
 
                 $urls[] = [
-                    'loc' => $locale . '/' . $segment . '/' . $routeValue,
+                    'loc' => self::formatSitemapUrl(locale: $locale, segment: $segment, slug: $routeValue),
                     'other_locs' => [],
                     'alternates' => $alternates,
                     'priority' => $priority,
@@ -102,5 +96,22 @@ class HandleDynamicSitemapHelper
         }
 
         return $urls;
+    }
+
+    /**
+     * Private helper to force WWW, absolute path, and URL encoding
+     */
+    private static function formatSitemapUrl(string $locale, string $segment, string $slug): string
+    {
+        $encodedSegment = rawurlencode($segment);
+        $encodedSlug = rawurlencode($slug);
+
+        $defaultLocale = config('sitemap.default_locale');
+
+        if ($locale == $defaultLocale) {
+            return $encodedSegment . '/' . $encodedSlug;
+        }
+        
+        return $locale . '/' . $encodedSegment . '/' . $encodedSlug;
     }
 }

@@ -11,7 +11,7 @@ class GenerateSitemapHelper
 {
     public static function generate()
     {
-        $staticLinks = config('sitemap.static_links');
+        $staticLinks = HandleStaticSitemapHelper::buildUrls();
 
         $dynamicUrls = [];
 

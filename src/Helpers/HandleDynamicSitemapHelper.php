@@ -105,13 +105,17 @@ class HandleDynamicSitemapHelper
     {
         $encodedSegment = rawurlencode($segment);
         $encodedSlug = rawurlencode($slug);
-
         $defaultLocale = config('sitemap.default_locale');
 
-        if ($locale == $defaultLocale) {
-            return $encodedSegment . '/' . $encodedSlug;
-        }
-        
-        return $locale . '/' . $encodedSegment . '/' . $encodedSlug;
+        $isDefaultLocale = $locale === $defaultLocale;
+        $isArabic = $locale === 'ar';
+
+        // Determine path order based on language direction
+        $path = $isArabic
+            ? "{$encodedSlug}/{$encodedSegment}"
+            : "{$encodedSegment}/{$encodedSlug}";
+
+        // Prepend locale if not default
+        return $isDefaultLocale ? $path : "{$locale}/{$path}";
     }
 }
